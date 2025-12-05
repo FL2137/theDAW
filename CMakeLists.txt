@@ -40,6 +40,7 @@ file(GLOB SOURCES
     # project sources
     src/*.cpp
     src/gui/*.cpp
+    src/backend/*.cpp
 
     # ASIO SDK sources
     asiosdk_2.3.3/common/asio.cpp
