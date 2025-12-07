@@ -15,22 +15,22 @@ void sampleRateDidChange(ASIOSampleRate sampleRate) {
     // dummy basically
 }
 
-float *normalizedData = nullptr;
 
 DriverInfo AsioBackend::driverInfo = DriverInfo();
 
 
 AsioBackend::~AsioBackend() {
-    delete[] normalizedData;
+    if (driverInfo.bufferInfos != nullptr) {
+        ASIODisposeBuffers();
+    }
 }
 
-void AsioBackend::start() {
+void AsioBackend::run() {
     initialize();
 }
 
 void AsioBackend::initialize() {
 
-    normalizedData = new float[48000];
 
     std::string driverName = "";
     manualDriverSelection(driverName);

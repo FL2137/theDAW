@@ -2,6 +2,8 @@
 #define MAINWINDOW_HPP
 
 #include <QMainWindow>
+#include <QThread>
+#include "../backend/asiobackend.hpp"
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -18,7 +20,13 @@ public:
 
 private:
     Ui::MainWindow* ui;
-    
+
+    asiobackend::AsioBackend m_audioBackend;
+    QThread m_audioBackendThread;
+
+signals:
+    void startBackend();
+
 };
 
 #endif // MAINWINDOW_HPP

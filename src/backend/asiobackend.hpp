@@ -6,9 +6,13 @@
 #include <functional>
 #include <vector>
 
+#include <QObject>
+
 namespace asiobackend {
 
-class AsioBackend {
+class AsioBackend : public QObject {
+
+    Q_OBJECT
 
 public:
 
@@ -17,14 +21,16 @@ public:
 
     AsioBackend() = default;
 
-    void start();
-
+    
     ~AsioBackend();
-
+    
     void addEffect(EffectDfx* effect);
     void removeEffect(EffectID id);
-
+    
     static DriverInfo driverInfo;
+
+public slots:
+    void run();
 
 private:
 
