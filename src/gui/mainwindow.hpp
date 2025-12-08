@@ -3,7 +3,8 @@
 
 #include <QMainWindow>
 #include <QThread>
-#include "../backend/asiobackend.hpp"
+#include "../backend/asiobackend.hpp" 
+#include "guiutil.hpp"
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -23,6 +24,10 @@ private:
 
     asiobackend::AsioBackend m_audioBackend;
     QThread m_audioBackendThread;
+    void initAsioBackend();
+
+private slots:
+    void backendReady(asiobackend::BackendInfo info);
 
 signals:
     void startBackend();

@@ -29,9 +29,6 @@ public:
     
     static DriverInfo driverInfo;
 
-public slots:
-    void run();
-
 private:
 
     void manualDriverSelection(std::string &driverName);
@@ -42,6 +39,14 @@ private:
 
     void runProcessing();
     std::vector<digitaleffects::EffectBase*> processingList;
+
+
+public slots:
+    void run();
+
+signals:
+    void backendReady(asiobackend::BackendInfo info);
+
 };
 }
 

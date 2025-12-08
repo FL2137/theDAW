@@ -130,7 +130,16 @@ void AsioBackend::initialize() {
         }
     }
 
-    ASIOStart();
+    result = ASIOStart();
+    
+    if (result == ASE_OK) {
+        BackendInfo info{};
+        info.bufferSize = driverInfo.maxBufferSize;
+        info.inLatency = driverInfo.inputLatency;
+        info.outLatency = driverInfo.outputLatency;
+        info.sampleSize = driverInfo.sampleRate;
+        emit backendReady(info);
+    }
 
     while (!driverInfo.stopped) {
         Sleep(100);

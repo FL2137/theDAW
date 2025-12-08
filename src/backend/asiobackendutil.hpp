@@ -108,6 +108,13 @@ namespace asiobackend {
         bool stopped;
     };
 
+    struct BackendInfo {
+        int sampleSize;
+        int outLatency;
+        int inLatency;
+        int bufferSize;
+    };
+
 }
 
 #endif // ASIOBACKENDUTIL_HPP
