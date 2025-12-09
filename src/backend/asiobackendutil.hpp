@@ -115,6 +115,36 @@ namespace asiobackend {
         int bufferSize;
     };
 
+    inline static void LOG_ERROR(ASIOError error) {
+        std::cout << "[" << __FUNCTION__  << "] ";
+        switch (error) {
+            case ASE_NotPresent:
+                std::cout << "hardware input or output is not present or available" << std::endl;
+                break;
+            case ASE_HWMalfunction:
+                std::cout << "hardware is malfunctioning (can be returned by any ASIO function)" << std::endl;
+                break;
+            case ASE_InvalidParameter:
+                std::cout << "input parameter invalid" << std::endl;
+                break;
+            case ASE_InvalidMode:
+                std::cout << "hardware is in a bad mode or used in a bad mode" << std::endl;
+                break;
+            case ASE_SPNotAdvancing:
+                std::cout << "hardware is not running when sample position is inquired" << std::endl;
+                break;
+            case ASE_NoClock:
+                std::cout << "sample clock or rate cannot be determined or is not present" << std::endl;
+                break;
+            case ASE_NoMemory:
+                std::cout << "not enough memory for completing the request" << std::endl;
+                break;
+            case ASE_OK:
+            default:
+                return;
+        }
+    }
+
 }
 
 #endif // ASIOBACKENDUTIL_HPP

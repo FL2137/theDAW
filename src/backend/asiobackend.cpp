@@ -22,7 +22,18 @@ DriverInfo AsioBackend::driverInfo = DriverInfo();
 AsioBackend::~AsioBackend() {
     if (driverInfo.bufferInfos != nullptr) {
         ASIODisposeBuffers();
+        std::cout << "ASIO buffers disposed of" << std::endl;
     }
+    ASIOError result;
+
+    result = ASIOExit();
+    if (result == ASE_OK){
+        std::cout << "ASIO driver exited correctly" << std::endl;
+    }
+    else {
+        LOG_ERROR(result);
+    }
+
 }
 
 void AsioBackend::run() {
@@ -45,12 +56,15 @@ void AsioBackend::initialize() {
     result = ASIOInit(&driverInfo.asioDriverInfo);
     if (result != ASE_OK) {
         std::cerr << "ASIOInit error\n";
+        LOG_ERROR(result);
+
         exit(-2);
     }
 
     result = ASIOGetChannels(&driverInfo.inputChannels, &driverInfo.outputChannels);
     if (result != ASE_OK) {
         std::cerr << "ASIOGetchannels error\n";
+        LOG_ERROR(result);
         exit(-2);
     }
 
@@ -131,14 +145,14 @@ void AsioBackend::initialize() {
     }
 
     result = ASIOStart();
-    
+
     if (result == ASE_OK) {
         BackendInfo info{};
         info.bufferSize = driverInfo.maxBufferSize;
         info.inLatency = driverInfo.inputLatency;
         info.outLatency = driverInfo.outputLatency;
         info.sampleSize = driverInfo.sampleRate;
-        emit backendReady(info);
+        //emit backendReady(info);
     }
 
     while (!driverInfo.stopped) {
