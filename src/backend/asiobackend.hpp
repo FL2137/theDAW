@@ -8,6 +8,10 @@
 
 #include <QThread>
 #include <QRunnable>
+#include <QWaitCondition>
+#include <QMutex>
+
+#include <QSettings>
 #include <QObject>
 
 namespace asiobackend {
@@ -56,22 +60,27 @@ public:
     using EffectDfx = digitaleffects::EffectBase;
     using EffectID = int;
 
-    AsioBackend() = default;
+    AsioBackend(QMutex& mutex, QWaitCondition& waitCondition) : mut(mutex), waitCon(waitCondition)
+    {
+    }
 
-    
     ~AsioBackend();
     
     void addEffect(EffectDfx* effect);
     void removeEffect(EffectID id);
     
     static DriverInfo driverInfo;
+    AsioDrivers asioDrivers{};
 
 private:
 
-    void manualDriverSelection(std::string &driverName);
+    bool manualDriverSelection();
+
+    void enumerateAudioDevices(std::vector<std::string>& driverNames);
+
+
     void initialize();
 
-    AsioDrivers m_drivers;
     ASIOCallbacks m_callbacks;
 
     std::vector<digitaleffects::EffectBase*> processingList;
@@ -83,10 +92,13 @@ private:
         44100, 48000, 88200, 96000, 176400, 192000
     };
 
-    
     const std::array<uint32_t, BUFFER_SIZES_COUNT> BUFFER_SIZES = {
         16,32, 48, 64, 128, 160, 192, 256, 512, 1024
     };
+
+    QSettings settings;
+    QMutex& mut;
+    QWaitCondition& waitCon;
 
 public slots:
     void run();
@@ -94,9 +106,11 @@ public slots:
 signals:
     void runProcessing();
     void backendReady(asiobackend::BackendInfo info);
+    void backendChooseAudioDriver(const std::vector<std::string>, std::string&);
 
 };
-}
 
+
+}
 
 #endif // ASIOBACKEND_HPP

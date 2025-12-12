@@ -3,7 +3,8 @@
 
 #include "distortion.hpp"
 #include "../math/mathutil.hpp"
-
+#include <QSettings>
+#include <QEventLoop>
 
 namespace asiobackend {
 
@@ -15,9 +16,7 @@ void sampleRateDidChange(ASIOSampleRate sampleRate) {
     // dummy basically
 }
 
-
 DriverInfo AsioBackend::driverInfo = DriverInfo();
-
 
 AsioBackend::~AsioBackend() {
     if (driverInfo.bufferInfos != nullptr) {
@@ -33,7 +32,6 @@ AsioBackend::~AsioBackend() {
     else {
         LOG_ERROR(result);
     }
-
 }
 
 void AsioBackend::run() {
@@ -42,13 +40,9 @@ void AsioBackend::run() {
 
 void AsioBackend::initialize() {
 
-
-    std::string driverName = "";
-    manualDriverSelection(driverName);
-
     ASIOError result;
 
-    if (!m_drivers.loadDriver(driverName.data())) {
+    if (!manualDriverSelection()) {
         std::cerr << "ASIO driver failed to load\n";
         exit(-1);
     }
@@ -164,18 +158,36 @@ void AsioBackend::initialize() {
     }
 }
 
-void AsioBackend::manualDriverSelection(std::string& driverName) {
-    std::vector<std::string> driverNames{};
-    asiobackend::enumerateAudioDevices(driverNames);
-
-    int idx = 1;
-    for (auto _driverName : driverNames) {
-        std::cout << idx++ << ". " << _driverName << std::endl;
+void AsioBackend::enumerateAudioDevices(std::vector<std::string>& driverNames) {
+    long numDrivers = asioDrivers.asioGetNumDev();
+    // List all driver names
+    char driverName[256];
+    for (long i = 0; i < numDrivers; ++i) {
+        asioDrivers.asioGetDriverName(i, driverName, sizeof(driverName));
+        driverNames.push_back(driverName);
     }
-    std::cout << std::endl;
-    std::cout << "Choose your dirver: ";
-    std::cin >> idx;
-    driverName = driverNames[idx-1];
+}
+
+bool AsioBackend::manualDriverSelection() {
+    std::vector<std::string> driverNames{};
+    enumerateAudioDevices(driverNames);
+    AsioDrivers drv;
+
+    std::string driverName = "";
+    settings.setValue("backend/drivername", "Focusrite USB ASIO");
+    
+    settings.sync();
+    
+    if (!settings.value("backend/drivername").isNull()) {
+        driverName = settings.value("backend/drivername").toString().toStdString();
+    }
+    else {
+        emit backendChooseAudioDriver(driverNames, driverName);
+        settings.setValue("backend/drivername", QString::fromStdString(driverName));
+    }
+    drv.loadDriver(driverName.data());
+    bool ok = AsioBackend::asioDrivers.loadDriver(driverName.data());
+    return ok;
 }
 
 void bufferSwitch(long index, ASIOBool processNow) {
@@ -271,7 +283,6 @@ long asioMessage(long selector, long value, void* message, double* opt) {
     return 0L;
 }
 
-
 void AsioBackend::addEffect(EffectDfx* effect) {
     processingList.push_back(effect);
 }
@@ -280,4 +291,4 @@ void AsioBackend::removeEffect(AsioBackend::EffectID id) {
     processingList.erase(std::find_if(processingList.begin(), processingList.end(), [id](const EffectDfx* rhs){ return (id == rhs->id);}));
 }
 
-}
+} // asiobackend

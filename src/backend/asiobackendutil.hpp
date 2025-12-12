@@ -19,9 +19,7 @@ namespace asiobackend {
         const double twoRaisedTo32 = 4294967296.;
         #define ASIO64toDouble(a)  ((a).lo + (a).hi * twoRaisedTo32)
     #endif
-
-    void enumerateAudioDevices(std::vector<std::string>& driverNames);
-
+    
     template<typename T, bool REAL_DIST> // implement REAL_DIST
     void getRandomSampleData(std::vector<T>& outputData, int dataSize) {
        
