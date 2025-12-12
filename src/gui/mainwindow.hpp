@@ -3,6 +3,8 @@
 
 #include <QMainWindow>
 #include <QThread>
+#include <QMutex>
+#include <QWaitCondition>
 #include "../backend/asiobackend.hpp" 
 #include "guiutil.hpp"
 
@@ -24,10 +26,15 @@ private:
 
     asiobackend::AsioBackend m_audioBackend;
     QThread m_audioBackendThread;
+
+    QMutex audioBackendMut;
+    QWaitCondition backendWaitCon;
+    
     void initAsioBackend();
 
-private slots:
-    void backendReady(asiobackend::BackendInfo info);
+public slots:
+    void backendChooseAudioDriver(const std::vector<std::string> drivers, std::string& selectedDriver);
+    void backendReady(const asiobackend::BackendInfo info);
 
 signals:
     void startBackend();
