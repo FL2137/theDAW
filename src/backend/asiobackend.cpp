@@ -254,22 +254,6 @@ ASIOTime* bufferSwitchTimeInfo(ASIOTime* timeInfo, long index, ASIOBool processN
     int32_t* inBuf = static_cast<int32_t*>(AsioBackend::driverInfo.bufferInfos[1].buffers[index]);
     int32_t* outBufL = static_cast<int32_t*>(AsioBackend::driverInfo.bufferInfos[3].buffers[index]);
     int32_t* outBufR = static_cast<int32_t*>(AsioBackend::driverInfo.bufferInfos[2].buffers[index]);
-    constexpr float OUTGAIN = 9.0f;
-    constexpr float INGAIN = 3.0f;
-    for (int i = 0 ; i < buffSize; ++i) {
-
-        float sample = inBuf[i] / 2147483648.0f;
-
-        sample *= INGAIN;
-
-        float threshold = 0.6f * INGAIN;
-        if (sample > threshold) sample = threshold;
-        else if (sample < -threshold) sample = -threshold;
-
-        int32_t processed = static_cast<int32_t>(sample * 2147483648.0f);
-        outBufL[i] = processed * OUTGAIN;
-        outBufR[i] = processed * OUTGAIN;
-    }
 
     if (AsioBackend::driverInfo.postOutput)
 		ASIOOutputReady();
