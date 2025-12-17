@@ -78,12 +78,15 @@ private:
 
     void enumerateAudioDevices(std::vector<std::string>& driverNames);
 
-
     void initialize();
 
     ASIOCallbacks m_callbacks;
 
     std::vector<digitaleffects::EffectBase*> processingList;
+
+    static const size_t INPUT_CHANNEL = 1;
+    static const size_t OUTPUT_CHANNEL_R = 2;
+    static const size_t OUTPUT_CHANNEL_L = 3;
 
     static constexpr size_t SAMPLE_RATES_COUNT = 6;
     static constexpr size_t BUFFER_SIZES_COUNT = 11;
@@ -91,7 +94,7 @@ private:
     const std::array<uint32_t, SAMPLE_RATES_COUNT> SAMPLE_RATES = {
         44100, 48000, 88200, 96000, 176400, 192000
     };
-
+    
     const std::array<uint32_t, BUFFER_SIZES_COUNT> BUFFER_SIZES = {
         16,32, 48, 64, 128, 160, 192, 256, 512, 1024
     };
@@ -100,11 +103,12 @@ private:
     QMutex& mut;
     QWaitCondition& waitCon;
 
+    void processingFunction(int32_t* buffer, int size);
+
 public slots:
     void run();
     
 signals:
-    void runProcessing();
     void backendReady(asiobackend::BackendInfo info);
     void backendChooseAudioDriver(const std::vector<std::string>, std::string&);
 
