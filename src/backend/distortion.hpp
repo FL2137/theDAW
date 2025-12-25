@@ -4,50 +4,98 @@
 #include <array>
 #include <limits>
 #include "Effect.hpp"
+#include <QObject>
+#include <QMainWindow>
+#include "../gui/mainwindow.hpp"
 
 namespace digitaleffects {
 
-class Distortion : public EffectBase {
+QT_BEGIN_NAMESPACE
+namespace Ui
+{
+    class Distortion;
+}
+QT_END_NAMESPACE
+
+class Distortion : QWidget {
 public:
+    Q_OBJECT
+    Distortion(QMainWindow* parent) : QWidget(parent)
+    {
+        QObject::connect(parent, &MainWindow::setGain)
+    }
 
-    template<typename T, size_t N>
-    void process(std::array<T, N>& sample) {
-        
-        const float ONETHIRD = 1.f/3.f;
-        const float TWOTHIRDS = 2.f/3.f;
+    ~Distortion()
+    {
+    }
 
-        for (uint32_t idx = 0u; idx < N; ++idx) {
-            if (sample[idx] < ONETHIRD) {
-                sample[idx] = sample[idx] * 2; 
-            }
-            else if(sample[idx] >= ONETHIRD && sample[idx] <= TWOTHIRDS) {
-                sample[idx] = (3 - ((2 - (3*sample[idx])) * (2 - (3*sample[idx])))) / 3;
-            }
-            else if (sample[idx] > TWOTHIRDS) {
-                sample[idx] = 1;
-            }
+    template<typename T>
+    inline void processSingleSample(T& data) const
+    {
+        if (!status.load(std::memory_order_acquire))
+        {
+            return;
+        }
+
+        float distortionValue = distortion.load(std::memory_order_acquire);
+        float levelValue = level.load(std::memory_order_acquire);
+        float toneValue = tone.load(std::memory_order_acquire);
+
+        data = std::tanhf(data);
+
+        if (data > 0)
+        {
+            data = 1.f - std::exp(-data);
+        }
+        else if(data < 0)
+        {
+            data = -1.f + std::exp(data);
         }
     }
 
     template<typename T, size_t N>
-    void process(T* sample) {
+    inline void process(T* data) const
+    {
+        if (!status.load(std::memory_order_acquire))
+        {
+            return;
+        }
 
-        const float ONETHIRD = 1.f/3.f;
-        const float TWOTHIRDS = 2.f/3.f;
+        float distortionValue = distortion.load(std::memory_order_acquire);
+        float levelValue = level.load(std::memory_order_acquire);
+        float toneValue = tone.load(std::memory_order_acquire);
 
-        for (uint32_t idx = 0u; idx < N; ++idx) {
-            if (sample[idx] < ONETHIRD) {
-                sample[idx] = sample[idx] * 2; 
+        for (int sampleIdx = 0; sampleIdx < N; ++sampleIdx)
+        {
+            auto& sample = data[sampleIdx];
+
+            sample = std::tanhf(sample);
+
+            if (sample > 0)
+            {
+                sample = 1.f - std::exp(-sample);
             }
-            else if(sample[idx] >= ONETHIRD && sample[idx] <= TWOTHIRDS) {
-                sample[idx] = (3 - ((2 - (3*sample[idx])) * (2 - (3*sample[idx])))) / 3;
-            }
-            else if (sample[idx] > TWOTHIRDS) {
-                sample[idx] = 1;
+            else if(sample < 0)
+            {
+                sample = -1.f + std::exp(sample);
             }
         }
     }
+
+private slots:
+    void changeStatus(bool newStatus);
+    void changeDistortion(float newDistortion);
+    void changeLevel(float newLevel);
+    void changeTone(float newTone);
+
+private:
+
+    std::atomic<bool> status;
+    std::atomic<float> distortion;
+    std::atomic<float> level;
+    std::atomic<float> tone;
 };
+
 }
 
 #endif // DISTORTION_HPP
