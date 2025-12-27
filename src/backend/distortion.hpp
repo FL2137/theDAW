@@ -8,26 +8,20 @@
 #include <QMainWindow>
 #include "../gui/mainwindow.hpp"
 
-namespace digitaleffects {
-
 QT_BEGIN_NAMESPACE
 namespace Ui
 {
-    class Distortion;
+    class DistortionWidget;
 }
 QT_END_NAMESPACE
 
-class Distortion : QWidget {
-public:
-    Q_OBJECT
-    Distortion(QMainWindow* parent) : QWidget(parent)
-    {
-        QObject::connect(parent, &MainWindow::setGain)
-    }
+namespace digitaleffects
+{
 
-    ~Distortion()
-    {
-    }
+class Distortion
+{
+
+public:
 
     template<typename T>
     inline void processSingleSample(T& data) const
@@ -82,14 +76,6 @@ public:
         }
     }
 
-private slots:
-    void changeStatus(bool newStatus);
-    void changeDistortion(float newDistortion);
-    void changeLevel(float newLevel);
-    void changeTone(float newTone);
-
-private:
-
     std::atomic<bool> status;
     std::atomic<float> distortion;
     std::atomic<float> level;
@@ -97,5 +83,42 @@ private:
 };
 
 }
+
+class DistortionWidget : public QWidget
+{
+public:
+    Q_OBJECT
+    DistortionWidget(QMainWindow* parent, digitaleffects::Distortion& distortion) : QWidget(parent), distortionLogic(distortion)
+    {
+        connect(this, &DistortionWidget::changeStatus, this, [this](bool newStatus){
+            distortionLogic.status = newStatus;
+        });
+
+        connect(this, &DistortionWidget::changeDistortion, this, [this](float newDistortion){
+            distortionLogic.distortion;
+        });
+
+        connect(this, &DistortionWidget::changeLevel, this, [this](float newLevel){
+            distortionLogic.level = newLevel;
+        });
+
+        connect(this, &DistortionWidget::changeTone, this,[this](float newTone){
+            distortionLogic.tone = newTone;
+        });
+
+    }
+
+    ~DistortionWidget()
+    {
+    }
+
+private slots:
+    void changeStatus(bool newStatus);
+    void changeDistortion(float newDistortion);
+    void changeLevel(float newLevel);
+    void changeTone(float newTone);
+
+    digitaleffects::Distortion& distortionLogic;
+};
 
 #endif // DISTORTION_HPP
