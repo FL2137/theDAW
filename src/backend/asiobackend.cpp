@@ -36,6 +36,12 @@ AsioBackend::~AsioBackend() {
 
 void AsioBackend::run() {
     initialize();
+    setupEffects();
+}
+
+void AsioBackend::setupEffects()
+{
+    processingList.push_back(new digitaleffects::Distortion());
 }
 
 void AsioBackend::initialize() {
@@ -146,7 +152,6 @@ void AsioBackend::initialize() {
         info.inLatency = driverInfo.inputLatency;
         info.outLatency = driverInfo.outputLatency;
         info.sampleSize = driverInfo.sampleRate;
-        //emit backendReady(info);
     }
 
     while (!driverInfo.stopped) {
@@ -205,26 +210,13 @@ void setTimeInfo(ASIOTime* timeInfo) {
     AsioBackend::driverInfo.timeInfo = *timeInfo;
 }
 
+void processingFunction(int32_t* buffer, int size) {
+
+}
+
 ASIOTime* bufferSwitchTimeInfo(ASIOTime* timeInfo, long index, ASIOBool processNow) {
-    static long processedSamples = 0;
+
     AsioBackend::driverInfo.timeInfo = *timeInfo;
-    static bool printed = false;
-
-    // Debug: print buffer layout once
-    if (!printed) {
-        std::cout << "Input Channels: " << AsioBackend::driverInfo.inputChannels << std::endl;
-        std::cout << "Output Channels: " << AsioBackend::driverInfo.outputChannels << std::endl;
-        std::cout << "Input Buffers: " << AsioBackend::driverInfo.inputBuffers << std::endl;
-        std::cout << "Output Buffers: " << AsioBackend::driverInfo.outputBuffers << std::endl;
-        
-        for (int i = 0; i < AsioBackend::driverInfo.inputBuffers + AsioBackend::driverInfo.outputBuffers; i++) {
-            std::cout << "Buffer " << i << ": isInput=" 
-                      << (AsioBackend::driverInfo.bufferInfos[i].isInput ? "YES" : "NO") 
-                      << " channel=" << AsioBackend::driverInfo.bufferInfos[i].channelNum << std::endl;
-        }
-        printed = true;
-    }
-
 
     if (timeInfo->timeInfo.flags & 1) { // 1 - system time valid
         AsioBackend::driverInfo.nanoSeconds = ASIO64toDouble(timeInfo->timeInfo.systemTime);
@@ -255,10 +247,54 @@ ASIOTime* bufferSwitchTimeInfo(ASIOTime* timeInfo, long index, ASIOBool processN
     int32_t* outBufL = static_cast<int32_t*>(AsioBackend::driverInfo.bufferInfos[3].buffers[index]);
     int32_t* outBufR = static_cast<int32_t*>(AsioBackend::driverInfo.bufferInfos[2].buffers[index]);
 
+    static constexpr int32_t MAX_INT = std::numeric_limits<int32_t>::max();
+    
+    float lowPassYk = 0;
+    float lowPassAlpha = 0.0001f;
+    
+    // oversampling
+    //gain
+    for (long idx = 0; idx < buffSize; ++idx)
+    {
+        float sample = inBuf[idx] / 2147483648.0f;
+
+        sample *= AsioBackend::pregain;
+
+        // // sample = tanhf(sample);
+
+        // if (sample > 0)
+        // {
+        //     sample = 1.f - exp(-sample);
+        // }
+        // else if(sample < 0)
+        // {
+        //     sample = -1.f + exp(sample);
+        // }
+
+        int32_t processed = static_cast<int32_t>(sample * 2147483648.0f);
+
+        outBufL[idx] = processed;
+        outBufR[idx] = processed;
+    }
+
+
+    // for (long idx = 0; idx < buffSize; ++idx)
+    // {
+    //     float sample = inBuf[idx] / 2147483648.0f;
+
+    //     // low pass filter start
+    //     lowPassYk += lowPassAlpha * (sample - lowPassYk);
+    //     // low pass filter end
+
+    //     int32_t processed = static_cast<int32_t>(lowPassYk * 2147483648.0f);
+
+    //     outBufL[idx] = processed;
+    //     outBufR[idx] = processed;
+    // }
+
+
     if (AsioBackend::driverInfo.postOutput)
 		ASIOOutputReady();
-
-    processedSamples += buffSize;
 
 	return 0L;
 }

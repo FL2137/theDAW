@@ -72,6 +72,8 @@ public:
     static DriverInfo driverInfo;
     AsioDrivers asioDrivers{};
 
+    inline static float pregain = 1.0f;
+
 private:
 
     bool manualDriverSelection();
@@ -81,8 +83,6 @@ private:
     void initialize();
 
     ASIOCallbacks m_callbacks;
-
-    std::vector<digitaleffects::EffectBase*> processingList;
 
     static const size_t INPUT_CHANNEL = 1;
     static const size_t OUTPUT_CHANNEL_R = 2;
@@ -104,6 +104,10 @@ private:
     QWaitCondition& waitCon;
 
     void processingFunction(int32_t* buffer, int size);
+
+    std::vector<digitaleffects::EffectBase*> processingList;
+
+    void setupEffects();
 
 public slots:
     void run();
