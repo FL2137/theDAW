@@ -5,8 +5,7 @@
 #include <limits>
 #include "Effect.hpp"
 #include <QObject>
-#include <QMainWindow>
-#include "../gui/mainwindow.hpp"
+#include <QWidget>
 
 QT_BEGIN_NAMESPACE
 namespace Ui
@@ -87,34 +86,17 @@ class DistortionWidget : public QWidget
 {
 public:
     Q_OBJECT
-    DistortionWidget(QMainWindow* parent, digitaleffects::Distortion& distortion) : QWidget(parent)
-    {
-        connect(this, &DistortionWidget::changeStatus, this, [this](bool newStatus){
-            distortionLogic->status = newStatus;
-        });
+    DistortionWidget(QWidget* parent = nullptr);
 
-        connect(this, &DistortionWidget::changeDistortion, this, [this](float newDistortion){
-            distortionLogic->distortion;
-        });
-
-        connect(this, &DistortionWidget::changeLevel, this, [this](float newLevel){
-            distortionLogic->level = newLevel;
-        });
-
-        connect(this, &DistortionWidget::changeTone, this,[this](float newTone){
-            distortionLogic->tone = newTone;
-        });
-    }
-
-    ~DistortionWidget() = default;
-
-private slots:
+signals:
     void changeStatus(bool newStatus);
     void changeDistortion(float newDistortion);
     void changeLevel(float newLevel);
     void changeTone(float newTone);
-
+private:
     std::shared_ptr<digitaleffects::Distortion> distortionLogic;
+
+    Ui::DistortionWidget* ui;
 };
 
 #endif // DISTORTION_HPP
