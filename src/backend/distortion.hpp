@@ -18,9 +18,8 @@ QT_END_NAMESPACE
 namespace digitaleffects
 {
 
-class Distortion
+class Distortion : public EffectBase
 {
-
 public:
 
     template<typename T>
@@ -88,29 +87,26 @@ class DistortionWidget : public QWidget
 {
 public:
     Q_OBJECT
-    DistortionWidget(QMainWindow* parent, digitaleffects::Distortion& distortion) : QWidget(parent), distortionLogic(distortion)
+    DistortionWidget(QMainWindow* parent, digitaleffects::Distortion& distortion) : QWidget(parent)
     {
         connect(this, &DistortionWidget::changeStatus, this, [this](bool newStatus){
-            distortionLogic.status = newStatus;
+            distortionLogic->status = newStatus;
         });
 
         connect(this, &DistortionWidget::changeDistortion, this, [this](float newDistortion){
-            distortionLogic.distortion;
+            distortionLogic->distortion;
         });
 
         connect(this, &DistortionWidget::changeLevel, this, [this](float newLevel){
-            distortionLogic.level = newLevel;
+            distortionLogic->level = newLevel;
         });
 
         connect(this, &DistortionWidget::changeTone, this,[this](float newTone){
-            distortionLogic.tone = newTone;
+            distortionLogic->tone = newTone;
         });
-
     }
 
-    ~DistortionWidget()
-    {
-    }
+    ~DistortionWidget() = default;
 
 private slots:
     void changeStatus(bool newStatus);
@@ -118,7 +114,7 @@ private slots:
     void changeLevel(float newLevel);
     void changeTone(float newTone);
 
-    digitaleffects::Distortion& distortionLogic;
+    std::shared_ptr<digitaleffects::Distortion> distortionLogic;
 };
 
 #endif // DISTORTION_HPP
