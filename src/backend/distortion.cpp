@@ -1,9 +1,12 @@
 #include "distortion.hpp"
 #include "ui_distortionwidget.h"
-
+#include "../gui/mainwindow.hpp"
 
 DistortionWidget::DistortionWidget(QWidget* parent) : QWidget(parent)
 {
+    
+    this->distortionLogic = new digitaleffects::Distortion();
+
     connect(ui->powerButton, &QPushButton::pressed, this, [this](){
         distortionLogic->status = !distortionLogic->status.load();
     });
@@ -19,4 +22,15 @@ DistortionWidget::DistortionWidget(QWidget* parent) : QWidget(parent)
     connect(ui->distDial, &QDial::valueChanged, this, [this](float newDistortion) {
         distortionLogic->distortion = newDistortion;
     });
+
+    if (auto mw = qobject_cast<MainWindow*>(parent))
+    {
+        connect(this, &DistortionWidget::newEffectCreated, mw, &MainWindow::onNewEffectCreated);
+    }
+}
+
+DistortionWidget::~DistortionWidget()
+{
+    delete ui;
+    delete distortionLogic;
 }

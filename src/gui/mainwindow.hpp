@@ -7,6 +7,7 @@
 #include <QWaitCondition>
 #include "../backend/asiobackend.hpp" 
 #include "guiutil.hpp"
+#include "../backend/distortion.hpp"
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -35,9 +36,12 @@ private:
 public slots:
     void backendChooseAudioDriver(const std::vector<std::string> drivers, std::string& selectedDriver);
     void backendReady(const asiobackend::BackendInfo info);
+    void onNewEffectCreated(digitaleffects::EffectBase* effect);
+
 
 signals:
     void startBackend();
+    void newEffectAdded(digitaleffects::EffectBase* effect);
 
 };
 

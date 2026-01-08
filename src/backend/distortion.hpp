@@ -87,14 +87,18 @@ class DistortionWidget : public QWidget
 public:
     Q_OBJECT
     DistortionWidget(QWidget* parent = nullptr);
+    ~DistortionWidget();
 
 signals:
     void changeStatus(bool newStatus);
     void changeDistortion(float newDistortion);
     void changeLevel(float newLevel);
     void changeTone(float newTone);
+
+    void newEffectCreated(digitaleffects::EffectBase* effect);
+
 private:
-    std::shared_ptr<digitaleffects::Distortion> distortionLogic;
+    digitaleffects::Distortion* distortionLogic;
 
     Ui::DistortionWidget* ui;
 };

@@ -20,7 +20,6 @@ void MainWindow::initAsioBackend() {
             &MainWindow::backendChooseAudioDriver,
             Qt::ConnectionType::BlockingQueuedConnection);
 
-
     m_audioBackendThread.start();
     emit startBackend();
 }
@@ -41,9 +40,7 @@ MainWindow::~MainWindow() {
 }
 
 void MainWindow::backendReady(const asiobackend::BackendInfo info) {
-    ui->bufferSizeCombo->setCurrentText(guiutil::intToQStr(info.bufferSize));
-    ui->sampleFreqCombo->setCurrentText(guiutil::intToQStr(info.sampleSize));
-    ui->driverCombo->setCurrentText("ASIO");
+  
 }
 
 void MainWindow::backendChooseAudioDriver(const std::vector<std::string> drivers, std::string& selectedDriver) {
@@ -60,4 +57,7 @@ void MainWindow::backendChooseAudioDriver(const std::vector<std::string> drivers
     return;
 }
 
-
+void MainWindow::onNewEffectCreated(digitaleffects::EffectBase* effect)
+{
+    
+}
