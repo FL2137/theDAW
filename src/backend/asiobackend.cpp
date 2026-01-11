@@ -13,7 +13,7 @@ ASIOTime* bufferSwitchTimeInfo(ASIOTime* timeInfo, long index, ASIOBool processN
 long asioMessage(long selector, long value, void* message, double* opt);
 
 void sampleRateDidChange(ASIOSampleRate sampleRate) {
-    // dummy basically
+    std::cout << "Sample rate changed: " << sampleRate << std::endl;
 }
 
 DriverInfo AsioBackend::driverInfo = DriverInfo();
@@ -301,14 +301,6 @@ ASIOTime* bufferSwitchTimeInfo(ASIOTime* timeInfo, long index, ASIOBool processN
 
 long asioMessage(long selector, long value, void* message, double* opt) {
     return 0L;
-}
-
-void AsioBackend::addEffect(EffectDfx* effect) {
-    processingList.push_back(effect);
-}
-
-void AsioBackend::removeEffect(AsioBackend::EffectID id) {
-    processingList.erase(std::find_if(processingList.begin(), processingList.end(), [id](const EffectDfx* rhs){ return (id == rhs->id);}));
 }
 
 } // asiobackend
