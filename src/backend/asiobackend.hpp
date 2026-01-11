@@ -62,10 +62,9 @@ public:
 
     using EffectBase = digitaleffects::EffectBase;
     using EffectID = int;
+    using EffectQueue = SpscQueue<EffectBase*, SPSC_QUEUE_DEPTH>;
 
-    AsioBackend(QMutex& mutex, QWaitCondition& waitCondition, SpscQueue<EffectBase*, SPSC_QUEUE_DEPTH>* effectQueue) : mut(mutex), waitCon(waitCondition)
-    {
-    }
+    AsioBackend(EffectQueue** effectQueue);
 
     ~AsioBackend();
     
@@ -100,8 +99,6 @@ private:
     };
 
     QSettings settings;
-    QMutex& mut;
-    QWaitCondition& waitCon;
 
     void processingFunction(int32_t* buffer, int size);
 
@@ -109,10 +106,12 @@ private:
 
     void setupEffects();
 
-    SpscQueue<EffectBase*, SPSC_QUEUE_DEPTH>* m_effectQueue{nullptr};
+    EffectQueue* m_effectQueue{nullptr};
 
 public slots:
     void run();
+
+    void stop();
     
 signals:
     void backendReady(asiobackend::BackendInfo info);

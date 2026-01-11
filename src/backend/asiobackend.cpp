@@ -18,6 +18,12 @@ void sampleRateDidChange(ASIOSampleRate sampleRate) {
 
 DriverInfo AsioBackend::driverInfo = DriverInfo();
 
+AsioBackend::AsioBackend(EffectQueue** effectQueue)
+{
+    m_effectQueue = new EffectQueue();
+    effectQueue = &m_effectQueue;
+}
+
 AsioBackend::~AsioBackend() {
     if (driverInfo.bufferInfos != nullptr) {
         ASIODisposeBuffers();
@@ -32,6 +38,8 @@ AsioBackend::~AsioBackend() {
     else {
         LOG_ERROR(result);
     }
+
+    delete m_effectQueue;
 }
 
 void AsioBackend::run() {
@@ -210,8 +218,48 @@ void setTimeInfo(ASIOTime* timeInfo) {
     AsioBackend::driverInfo.timeInfo = *timeInfo;
 }
 
-void processingFunction(int32_t* buffer, int size) {
+void processingFunction(int32_t*& in, int32_t*& outL, int32_t*& outR, int bufferSize) {
+    static constexpr float MAX_INT_SIZE = 2147483648.0f;
 
+    // oversampling
+    //gain
+    for (long idx = 0; idx < bufferSize; ++idx)
+    {
+        float sample = in[idx] / MAX_INT_SIZE;
+
+        sample *= AsioBackend::pregain;
+
+        // // sample = tanhf(sample);
+
+        // if (sample > 0)
+        // {
+        //     sample = 1.f - exp(-sample);
+        // }
+        // else if(sample < 0)
+        // {
+        //     sample = -1.f + exp(sample);
+        // }
+
+        int32_t processed = static_cast<int32_t>(sample * MAX_INT_SIZE);
+
+        outL[idx] = processed;
+        outR[idx] = processed;
+    }
+
+
+    // for (long idx = 0; idx < buffSize; ++idx)
+    // {
+    //     float sample = inBuf[idx] / 2147483648.0f;
+
+    //     // low pass filter start
+    //     lowPassYk += lowPassAlpha * (sample - lowPassYk);
+    //     // low pass filter end
+
+    //     int32_t processed = static_cast<int32_t>(lowPassYk * 2147483648.0f);
+
+    //     outBufL[idx] = processed;
+    //     outBufR[idx] = processed;
+    // }
 }
 
 ASIOTime* bufferSwitchTimeInfo(ASIOTime* timeInfo, long index, ASIOBool processNow) {
@@ -247,52 +295,8 @@ ASIOTime* bufferSwitchTimeInfo(ASIOTime* timeInfo, long index, ASIOBool processN
     int32_t* outBufL = static_cast<int32_t*>(AsioBackend::driverInfo.bufferInfos[3].buffers[index]);
     int32_t* outBufR = static_cast<int32_t*>(AsioBackend::driverInfo.bufferInfos[2].buffers[index]);
 
-    static constexpr int32_t MAX_INT = std::numeric_limits<int32_t>::max();
+    processingFunction(inBuf, outBufL, outBufR, buffSize);
     
-    float lowPassYk = 0;
-    float lowPassAlpha = 0.0001f;
-    
-    // oversampling
-    //gain
-    for (long idx = 0; idx < buffSize; ++idx)
-    {
-        float sample = inBuf[idx] / 2147483648.0f;
-
-        sample *= AsioBackend::pregain;
-
-        // // sample = tanhf(sample);
-
-        // if (sample > 0)
-        // {
-        //     sample = 1.f - exp(-sample);
-        // }
-        // else if(sample < 0)
-        // {
-        //     sample = -1.f + exp(sample);
-        // }
-
-        int32_t processed = static_cast<int32_t>(sample * 2147483648.0f);
-
-        outBufL[idx] = processed;
-        outBufR[idx] = processed;
-    }
-
-
-    // for (long idx = 0; idx < buffSize; ++idx)
-    // {
-    //     float sample = inBuf[idx] / 2147483648.0f;
-
-    //     // low pass filter start
-    //     lowPassYk += lowPassAlpha * (sample - lowPassYk);
-    //     // low pass filter end
-
-    //     int32_t processed = static_cast<int32_t>(lowPassYk * 2147483648.0f);
-
-    //     outBufL[idx] = processed;
-    //     outBufR[idx] = processed;
-    // }
-
-
     if (AsioBackend::driverInfo.postOutput)
 		ASIOOutputReady();
 
@@ -302,5 +306,16 @@ ASIOTime* bufferSwitchTimeInfo(ASIOTime* timeInfo, long index, ASIOBool processN
 long asioMessage(long selector, long value, void* message, double* opt) {
     return 0L;
 }
+
+void AsioBackend::stop()
+{
+    ASIOError error = ASIOStop();
+    if (error != ASE_OK)
+    {
+        std::cerr << "Couldnt stop the ASIO backend" << std::endl;
+        return;
+    }
+}
+
 
 } // asiobackend
