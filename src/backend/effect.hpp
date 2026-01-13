@@ -1,14 +1,26 @@
 #ifndef EFFECT_HPP
 #define EFFECT_HPP
 
+#include <QWidget>
+
 namespace digitaleffects {
 
+using DataType = float;
+
+enum EffectStatus
+{
+    INVALID = 0,
+    UNUSED = 1,
+    IDLE = 2,
+    RUNNING = 3
+};
+
+template<size_t N>
 class EffectBase {
 public:
-    virtual void process() = 0;
-
     unsigned int id;
-    bool status;
+
+    virtual void process() = 0;
 };
 
 }

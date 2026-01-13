@@ -17,6 +17,7 @@ QT_END_NAMESPACE
 namespace digitaleffects
 {
 
+template<size_t N>
 class Distortion : public EffectBase
 {
 public:
@@ -45,8 +46,7 @@ public:
         }
     }
 
-    template<typename T, size_t N>
-    inline void process(T* data) const
+    inline void process(DataType* data) const
     {
         if (!status.load(std::memory_order_acquire))
         {
