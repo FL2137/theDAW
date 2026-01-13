@@ -22,30 +22,6 @@ class Distortion : public EffectBase
 {
 public:
 
-    template<typename T>
-    inline void processSingleSample(T& data) const
-    {
-        if (!status.load(std::memory_order_acquire))
-        {
-            return;
-        }
-
-        float distortionValue = distortion.load(std::memory_order_acquire);
-        float levelValue = level.load(std::memory_order_acquire);
-        float toneValue = tone.load(std::memory_order_acquire);
-
-        data = std::tanhf(data);
-
-        if (data > 0)
-        {
-            data = 1.f - std::exp(-data);
-        }
-        else if(data < 0)
-        {
-            data = -1.f + std::exp(data);
-        }
-    }
-
     inline void process(DataType* data) const
     {
         if (!status.load(std::memory_order_acquire))
