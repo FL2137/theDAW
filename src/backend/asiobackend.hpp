@@ -60,9 +60,10 @@ class AsioBackend : public QObject {
 
 public:
 
-    using EffectBase = digitaleffects::EffectBase;
+    using EffectBase = digitaleffects::EffectBase<48000>;
     using EffectID = int;
     using EffectQueue = SpscQueue<EffectBase*, SPSC_QUEUE_DEPTH>;
+    using EffectList = std::vector<EffectBase*>;
 
     AsioBackend(EffectQueue** effectQueue);
 
@@ -100,7 +101,7 @@ private:
 
     QSettings settings;
 
-    void processingFunction(int32_t* buffer, int size);
+    static void processingFunction(int32_t*& in, int32_t*& outL, int32_t*& outR, int bufferSiz);
 
     std::vector<EffectBase*> processingList;
 

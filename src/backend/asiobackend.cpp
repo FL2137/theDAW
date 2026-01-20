@@ -8,6 +8,8 @@
 
 namespace asiobackend {
 
+using EffectList = std::vector<EffectBase*>;
+
 void bufferSwitch(long index, ASIOBool processNow);
 ASIOTime* bufferSwitchTimeInfo(ASIOTime* timeInfo, long index, ASIOBool processNow);
 long asioMessage(long selector, long value, void* message, double* opt);
@@ -218,48 +220,13 @@ void setTimeInfo(ASIOTime* timeInfo) {
     AsioBackend::driverInfo.timeInfo = *timeInfo;
 }
 
-void processingFunction(int32_t*& in, int32_t*& outL, int32_t*& outR, int bufferSize) {
+void processingFunction(int32_t*& in, int32_t*& outL, int32_t*& outR, int bufferSize, P) {
     static constexpr float MAX_INT_SIZE = 2147483648.0f;
 
-    // oversampling
-    //gain
-    for (long idx = 0; idx < bufferSize; ++idx)
+    for (EffectBase* effect : processingList)
     {
-        float sample = in[idx] / MAX_INT_SIZE;
-
-        sample *= AsioBackend::pregain;
-
-        // // sample = tanhf(sample);
-
-        // if (sample > 0)
-        // {
-        //     sample = 1.f - exp(-sample);
-        // }
-        // else if(sample < 0)
-        // {
-        //     sample = -1.f + exp(sample);
-        // }
-
-        int32_t processed = static_cast<int32_t>(sample * MAX_INT_SIZE);
-
-        outL[idx] = processed;
-        outR[idx] = processed;
+        effect->process();
     }
-
-
-    // for (long idx = 0; idx < buffSize; ++idx)
-    // {
-    //     float sample = inBuf[idx] / 2147483648.0f;
-
-    //     // low pass filter start
-    //     lowPassYk += lowPassAlpha * (sample - lowPassYk);
-    //     // low pass filter end
-
-    //     int32_t processed = static_cast<int32_t>(lowPassYk * 2147483648.0f);
-
-    //     outBufL[idx] = processed;
-    //     outBufR[idx] = processed;
-    // }
 }
 
 ASIOTime* bufferSwitchTimeInfo(ASIOTime* timeInfo, long index, ASIOBool processNow) {
