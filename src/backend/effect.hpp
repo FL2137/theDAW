@@ -15,7 +15,6 @@ enum EffectStatus
     RUNNING = 3
 };
 
-template<size_t N>
 class EffectBase {
 public:
     unsigned int id;
