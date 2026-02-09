@@ -17,6 +17,10 @@ public:
     {
         m_vulkanFunctions = nullptr;
 
+        m_vulkanInstance.setLayers({
+            "VK_LAYER_KHRONOS_validation"
+        });
+
         m_vulkanInstance.create();
 
         m_vulkanWindow->setVulkanInstance(&m_vulkanInstance);
@@ -24,8 +28,6 @@ public:
 
     void startNextFrame() override {
         VkCommandBuffer cmdBuffer = m_vulkanWindow->currentCommandBuffer();
-
-        // m_vulkanFunctions->vkCmdBeginRenderPass(cmdBuffer, VkRenderPass
 
         m_vulkanWindow->frameReady();
     }
