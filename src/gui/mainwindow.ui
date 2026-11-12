@@ -6,81 +6,151 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>800</width>
-    <height>600</height>
+    <width>1062</width>
+    <height>778</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>MainWindow</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <widget class="QComboBox" name="driverCombo">
+   <widget class="QWidget" name="verticalLayoutWidget">
     <property name="geometry">
      <rect>
-      <x>40</x>
-      <y>160</y>
-      <width>131</width>
-      <height>24</height>
+      <x>20</x>
+      <y>20</y>
+      <width>1021</width>
+      <height>391</height>
+     </rect>
+    </property>
+    <layout class="QVBoxLayout" name="vulkanLayout">
+     <item>
+      <widget class="QGraphicsView" name="graphicsView"/>
+     </item>
+    </layout>
+   </widget>
+   <widget class="QPushButton" name="addSineWaveButton">
+    <property name="geometry">
+     <rect>
+      <x>930</x>
+      <y>680</y>
+      <width>121</width>
+      <height>41</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Add Sine Wave</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="scalarTransLineEdit">
+    <property name="geometry">
+     <rect>
+      <x>960</x>
+      <y>430</y>
+      <width>81</width>
+      <height>22</height>
      </rect>
     </property>
    </widget>
-   <widget class="QLabel" name="selectDriverLabel">
+   <widget class="QLineEdit" name="simdTransLineEdit">
     <property name="geometry">
      <rect>
-      <x>40</x>
-      <y>140</y>
-      <width>131</width>
+      <x>960</x>
+      <y>460</y>
+      <width>81</width>
+      <height>22</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="gpuTransLineEdit">
+    <property name="geometry">
+     <rect>
+      <x>960</x>
+      <y>490</y>
+      <width>81</width>
+      <height>22</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QLabel" name="scalarTransLabel">
+    <property name="geometry">
+     <rect>
+      <x>900</x>
+      <y>430</y>
+      <width>50</width>
+      <height>15</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Scalar:</string>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTop|Qt::AlignmentFlag::AlignTrailing</set>
+    </property>
+   </widget>
+   <widget class="QLabel" name="gpuTransLabel">
+    <property name="geometry">
+     <rect>
+      <x>900</x>
+      <y>490</y>
+      <width>49</width>
       <height>16</height>
      </rect>
     </property>
     <property name="text">
-     <string>Select Driver:</string>
+     <string>GPU:</string>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
     </property>
    </widget>
-   <widget class="QComboBox" name="sampleFreqCombo">
+   <widget class="QLabel" name="simdTransLabel">
     <property name="geometry">
      <rect>
-      <x>40</x>
-      <y>240</y>
-      <width>131</width>
-      <height>24</height>
-     </rect>
-    </property>
-   </widget>
-   <widget class="QComboBox" name="bufferSizeCombo">
-    <property name="geometry">
-     <rect>
-      <x>40</x>
-      <y>290</y>
-      <width>131</width>
-      <height>24</height>
-     </rect>
-    </property>
-   </widget>
-   <widget class="QLabel" name="label">
-    <property name="geometry">
-     <rect>
-      <x>40</x>
-      <y>220</y>
-      <width>141</width>
+      <x>900</x>
+      <y>460</y>
+      <width>49</width>
       <height>16</height>
      </rect>
     </property>
     <property name="text">
-     <string>Select sampling frequency:</string>
+     <string>SIMD:</string>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTop|Qt::AlignmentFlag::AlignTrailing</set>
     </property>
    </widget>
-   <widget class="QLabel" name="label_2">
+   <widget class="QPushButton" name="asioButton">
     <property name="geometry">
      <rect>
-      <x>40</x>
-      <y>270</y>
-      <width>131</width>
-      <height>16</height>
+      <x>930</x>
+      <y>640</y>
+      <width>121</width>
+      <height>31</height>
      </rect>
     </property>
     <property name="text">
-     <string>Select buffer size:</string>
+     <string>Start/Stop Asio</string>
+    </property>
+   </widget>
+   <widget class="QListWidget" name="effectsList">
+    <property name="geometry">
+     <rect>
+      <x>20</x>
+      <y>420</y>
+      <width>151</width>
+      <height>301</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QWidget" name="effectWidget" native="true">
+    <property name="geometry">
+     <rect>
+      <x>180</x>
+      <y>420</y>
+      <width>581</width>
+      <height>301</height>
+     </rect>
     </property>
    </widget>
   </widget>
@@ -89,8 +159,8 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>800</width>
-     <height>21</height>
+     <width>1062</width>
+     <height>22</height>
     </rect>
    </property>
   </widget>
