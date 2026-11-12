@@ -2,9 +2,13 @@
 #define MATHUTIL_HPP
 
 #include <array>
+#include <math.h>
+#include <QtQuick/QSGNode>
 
 namespace core {
 namespace math {
+
+#define PI 3.14159265358979323846
 
 template<typename T, size_t N>
 void normalizeSampleData(const std::array<T, N>& data, std::array<float, N>& out, int32_t& outmax, int32_t& outmin) {
@@ -72,8 +76,38 @@ void denormalizeSample(float data[N], T in[N], int32_t max, int32_t min) {
     }
 }
 
-}
+inline void generateSinWave(double* data,  uint32_t cycles, uint32_t resolution = 48000) {
+    
+    double waveLength = PI * cycles * 2;
+    double step = waveLength / static_cast<double>(resolution);
+
+    double x = 0.0f;
+    
+    for (uint32_t i = 0; i < resolution; i++) {
+        data[i] = std::sin(x);
+        if (i < 5) {
+            std::cout << "x:" << x << std::endl;
+        }
+        x += step;
+    }
 }
 
+inline void generateSineWavePoints(QPointF* points, uint32_t cycles, int32_t startOffset = 0, uint32_t resolution = 48000) {
+    double waveLength = PI * cycles * 2;
+    double step = waveLength / static_cast<double>(resolution);
+
+    double x = startOffset;
+
+    for (uint32_t i = 0; i
+         < resolution; i++) {
+        points[i] = QPointF(x, std::sinf(x));
+        x += step;
+    }
+    
+}
+
+
+}
+}
 
 #endif // MATHUTIL_HPP
